@@ -282,6 +282,7 @@ body {
 
 <script>
 const STORAGE_KEY = 'foxTracker';
+const CLOUD_DATA_URL = 'https://raw.githubusercontent.com/prinsy09/fox-tracker/main/data.json';
 
 const SYMPTOMS = [
   { id: 'cramps', emoji: '😣', label: '小腹疼' },
@@ -332,6 +333,32 @@ let currentMonth = new Date();
 let modalType = '';
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+// Cloud sync: fetch from GitHub, merge with local (cloud wins if newer)
+async function cloudSync() {
+  try {
+    const res = await fetch(CLOUD_DATA_URL + '?t=' + Date.now());
+    if (!res.ok) return;
+    const cloud = await res.json();
+    const localUpdated = data.lastUpdated || '2000-01-01';
+    const cloudUpdated = cloud.lastUpdated || '2000-01-01';
+    if (cloudUpdated >= localUpdated) {
+      // Cloud is newer or equal, use cloud data
+      Object.assign(data, cloud);
+      // Ensure arrays/objects exist
+      if (!data.symptoms) data.symptoms = {};
+      if (!data.meds) data.meds = [];
+      if (!data.inventory) data.inventory = { pads: 0, warmpad: 0, painkillers: 0, tampons: 0 };
+      save();
+      render();
+      console.log('🐺 Cloud sync: updated from GitHub');
+    } else {
+      console.log('🦊 Local data is newer, keeping local');
+    }
+  } catch(e) {
+    console.log('Cloud sync skipped:', e.message);
+  }
+}
 function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
 function formatDate(d) { const date = new Date(d + 'T00:00:00'); return `${date.getMonth()+1}/${date.getDate()}`; }
 function addDays(dateStr, n) { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
@@ -617,6 +644,8 @@ function render() {
 }
 
 render();
+cloudSync(); // Sync from GitHub on load
+setInterval(cloudSync, 300000); // Re-sync every 5 minutes
 </script>
 </body>
 </html>
