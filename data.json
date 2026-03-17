@@ -1,20 +1,53 @@
 {
   "periods": [
-    { "start": "2025-12-17", "end": "2025-12-21", "cycle": null },
-    { "start": "2026-01-17", "end": "2026-01-22", "cycle": 31 },
-    { "start": "2026-02-16", "end": "2026-02-20", "cycle": 30 }
+    {
+      "start": "2025-12-17",
+      "end": "2025-12-21",
+      "cycle": null
+    },
+    {
+      "start": "2026-01-17",
+      "end": "2026-01-22",
+      "cycle": 31
+    },
+    {
+      "start": "2026-02-16",
+      "end": "2026-02-20",
+      "cycle": 30
+    }
   ],
-  "milkDays": ["2026-03-16"],
+  "milkDays": [
+    "2026-03-16"
+  ],
   "symptoms": {
-    "2026-03-15": ["spicy"],
-    "2026-03-16": ["cramps", "breast", "headache"],
-    "2026-03-17": ["cramps", "backache", "mood"]
+    "2026-03-15": [
+      "spicy"
+    ],
+    "2026-03-16": [
+      "cramps",
+      "breast",
+      "headache"
+    ],
+    "2026-03-17": [
+      "cramps",
+      "backache",
+      "mood"
+    ]
   },
   "meds": [
-    { "date": "2026-03-16", "id": "excedrin", "note": "偏头疼" }
+    {
+      "date": "2026-03-16",
+      "id": "excedrin",
+      "note": "偏头疼"
+    }
   ],
-  "inventory": { "pads": 5, "warmpad": 0, "painkillers": 2, "tampons": 0 },
+  "inventory": {
+    "pads": 5,
+    "warmpad": 0,
+    "painkillers": 2,
+    "tampons": 0
+  },
   "avgCycle": 30,
   "avgPeriod": 5,
-  "lastUpdated": "2026-03-17T12:35:00"
+  "lastUpdated": "2026-03-17T12:40:00"
 }
