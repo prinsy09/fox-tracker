@@ -60,7 +60,7 @@ body {
 .cal-day.period { background: #fce4ec; color: #e57373; font-weight: 600; }
 .cal-day.predicted-period { background: #fce4ec55; color: #e57373; border: 1px dashed #e57373; }
 .cal-day.ovulation { background: #e8f5e9; color: #66bb6a; font-weight: 600; }
-.cal-day.milk::after { content: '🥛'; font-size: 8px; position: absolute; bottom: 2px; right: 2px; }
+.cal-day.milk::after { content: attr(data-milk); font-size: 7px; position: absolute; bottom: 1px; right: 1px; line-height: 1; }
 .cal-day.has-symptom::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #ff9800; position: absolute; top: 3px; right: 3px; }
 .cal-day.other-month { color: #ddd; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 12px 0; font-size: 12px; color: #a0756a; }
@@ -400,11 +400,16 @@ function updateStatus() {
   document.getElementById('avgPeriod').textContent = data.avgPeriod;
 
   const thisMonth = new Date();
-  const monthMilks = data.milkDays.filter(d => {
-    const md = new Date(d + 'T00:00:00');
-    return md.getMonth() === thisMonth.getMonth() && md.getFullYear() === thisMonth.getFullYear();
+  let monthMilkCount = 0;
+  (data.milkDays || []).forEach(m => {
+    const dateStr = typeof m === 'string' ? m : m.date;
+    const count = typeof m === 'string' ? 1 : (m.count || 1);
+    const md = new Date(dateStr + 'T00:00:00');
+    if (md.getMonth() === thisMonth.getMonth() && md.getFullYear() === thisMonth.getFullYear()) {
+      monthMilkCount += count;
+    }
   });
-  document.getElementById('milkCount').textContent = monthMilks.length;
+  document.getElementById('milkCount').textContent = monthMilkCount;
 }
 
 function renderCalendar() {
@@ -433,7 +438,12 @@ function renderCalendar() {
   let ovulationDays = new Set();
   for (let i = -2; i <= 2; i++) ovulationDays.add(addDays(ovulationDate, i));
 
-  let milkSet = new Set(data.milkDays);
+  // Build milk map: date -> count
+  let milkMap = {};
+  (data.milkDays || []).forEach(m => {
+    if (typeof m === 'string') { milkMap[m] = (milkMap[m] || 0) + 1; }
+    else if (m.date) { milkMap[m.date] = m.count || 1; }
+  });
 
   let html = '';
   for (let i = 0; i < firstDay; i++) html += '<div class="cal-day other-month"></div>';
@@ -441,13 +451,18 @@ function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     let classes = ['cal-day'];
+    let extraAttr = '';
     if (dateStr === today) classes.push('today');
     if (periodDays.has(dateStr)) classes.push('period');
     else if (predictedPeriod.has(dateStr)) classes.push('predicted-period');
     if (ovulationDays.has(dateStr)) classes.push('ovulation');
-    if (milkSet.has(dateStr)) classes.push('milk');
+    if (milkMap[dateStr]) {
+      classes.push('milk');
+      const c = milkMap[dateStr];
+      extraAttr = ` data-milk="${c > 1 ? '🥛x' + c : '🥛'}"`;
+    }
     if (data.symptoms[dateStr] && data.symptoms[dateStr].length > 0) classes.push('has-symptom');
-    html += `<div class="${classes.join(' ')}" onclick="dayClick('${dateStr}')">${day}</div>`;
+    html += `<div class="${classes.join(' ')}"${extraAttr} onclick="dayClick('${dateStr}')">${day}</div>`;
   }
   document.getElementById('calDays').innerHTML = html;
 }
@@ -553,14 +568,25 @@ function renderHistory() {
   });
 
   const milkByMonth = {};
-  data.milkDays.forEach(d => { const key = d.substring(0, 7); milkByMonth[key] = (milkByMonth[key] || 0) + 1; });
-  if (Object.keys(milkByMonth).length > 0) {
+  const milkByDay = [];
+  (data.milkDays || []).forEach(m => {
+    const dateStr = typeof m === 'string' ? m : m.date;
+    const count = typeof m === 'string' ? 1 : (m.count || 1);
+    const key = dateStr.substring(0, 7);
+    milkByMonth[key] = (milkByMonth[key] || 0) + count;
+    milkByDay.push({ date: dateStr, count });
+  });
+  if (milkByDay.length > 0) {
     html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f5ebe5">';
     html += '<div style="font-size:14px;font-weight:600;margin-bottom:8px">🥛 牛奶记录</div>';
-    Object.keys(milkByMonth).sort().reverse().forEach(m => {
-      html += `<div class="log-entry"><div class="log-date">${m}</div><div class="log-cycle">${milkByMonth[m]}次</div></div>`;
+    [...milkByDay].reverse().forEach(m => {
+      html += `<div class="log-entry"><div class="log-date">${formatDate(m.date)}</div><div class="log-cycle">${m.count > 1 ? '🥛x' + m.count : '🥛'}</div></div>`;
     });
-    html += '</div>';
+    html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid #f5ebe5;font-size:13px;color:#a0756a;text-align:center">';
+    Object.keys(milkByMonth).sort().reverse().forEach(m => {
+      html += `${m}: 共${milkByMonth[m]}杯 `;
+    });
+    html += '</div></div>';
   }
   document.getElementById('historyLog').innerHTML = html;
 }
@@ -618,7 +644,16 @@ function saveEntry() {
       }
     }
   } else if (modalType === 'milk') {
-    if (!data.milkDays.includes(date)) { data.milkDays.push(date); data.milkDays.sort(); }
+    const existing = data.milkDays.find(m => (typeof m === 'string' ? m : m.date) === date);
+    if (existing && typeof existing === 'object') {
+      existing.count = (existing.count || 1) + 1;
+    } else if (typeof existing === 'string') {
+      const idx = data.milkDays.indexOf(existing);
+      data.milkDays[idx] = { date: date, count: 2 };
+    } else {
+      data.milkDays.push({ date: date, count: 1 });
+      data.milkDays.sort((a, b) => ((typeof a === 'string' ? a : a.date).localeCompare(typeof b === 'string' ? b : b.date)));
+    }
   } else if (modalType === 'med') {
     const medId = document.getElementById('medSelect').value;
     const note = document.getElementById('medNote').value;
@@ -629,11 +664,18 @@ function saveEntry() {
 }
 
 function dayClick(dateStr) {
-  const hasMilk = data.milkDays.includes(dateStr);
-  const hasSymptoms = data.symptoms[dateStr] && data.symptoms[dateStr].length > 0;
-  if (hasMilk) {
-    if (confirm(`${formatDate(dateStr)} 已有🥛记录，要删除吗？`)) {
-      data.milkDays = data.milkDays.filter(d => d !== dateStr);
+  const milkEntry = data.milkDays.find(m => (typeof m === 'string' ? m : m.date) === dateStr);
+  if (milkEntry) {
+    const count = typeof milkEntry === 'string' ? 1 : (milkEntry.count || 1);
+    const msg = count > 1
+      ? `${formatDate(dateStr)} 有🥛x${count}，减一杯还是全部删除？\n\n确定=减一杯 / 取消=不动`
+      : `${formatDate(dateStr)} 有🥛记录，要删除吗？`;
+    if (confirm(msg)) {
+      if (count > 1 && typeof milkEntry === 'object') {
+        milkEntry.count--;
+      } else {
+        data.milkDays = data.milkDays.filter(m => (typeof m === 'string' ? m : m.date) !== dateStr);
+      }
       save(); render();
     }
   }
