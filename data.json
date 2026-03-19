@@ -33,6 +33,10 @@
     {
       "date": "2026-03-18",
       "count": 3
+    },
+    {
+      "date": "2026-03-19",
+      "count": 2
     }
   ],
   "symptoms": {
@@ -70,5 +74,5 @@
   },
   "avgCycle": 30,
   "avgPeriod": 5,
-  "lastUpdated": "2026-03-18T17:07:00"
+  "lastUpdated": "2026-03-19T12:45:00"
 }
