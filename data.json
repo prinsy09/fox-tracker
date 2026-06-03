@@ -1,99 +1,34 @@
 {
   "periods": [
-    {
-      "start": "2025-12-17",
-      "end": "2025-12-21",
-      "cycle": null
-    },
-    {
-      "start": "2026-01-17",
-      "end": "2026-01-22",
-      "cycle": 31
-    },
-    {
-      "start": "2026-02-16",
-      "end": "2026-02-20",
-      "cycle": 30
-    },
-    {
-      "start": "2026-03-17",
-      "end": "2026-03-22",
-      "cycle": 29
-    },
-    {
-      "start": "2026-04-22",
-      "end": null,
-      "cycle": 36
-    }
+    {"start":"2025-12-17","end":"2025-12-21","cycle":null},
+    {"start":"2026-01-17","end":"2026-01-22","cycle":31},
+    {"start":"2026-02-16","end":"2026-02-20","cycle":30},
+    {"start":"2026-03-17","end":"2026-03-22","cycle":29},
+    {"start":"2026-04-22","end":"2026-04-26","cycle":36},
+    {"start":"2026-05-30","end":null,"cycle":38}
   ],
   "milkDays": [
-    {
-      "date": "2026-03-16",
-      "count": 1
-    },
-    {
-      "date": "2026-03-17",
-      "count": 2
-    },
-    {
-      "date": "2026-03-18",
-      "count": 3
-    },
-    {
-      "date": "2026-03-19",
-      "count": 2
-    }
+    {"date":"2026-03-16","count":1},
+    {"date":"2026-03-17","count":2},
+    {"date":"2026-03-18","count":3},
+    {"date":"2026-03-19","count":2}
   ],
   "symptoms": {
-    "2026-03-15": [
-      "spicy"
-    ],
-    "2026-03-16": [
-      "cramps",
-      "breast",
-      "headache"
-    ],
-    "2026-03-17": [
-      "cramps",
-      "backache",
-      "mood"
-    ],
-    "2026-04-12": [
-      "headache"
-    ],
-    "2026-04-21": [
-      "cramps"
-    ],
-    "2026-04-22": [
-      "cramps",
-      "backache"
-    ],
-    "2026-04-23": [
-      "cramps"
-    ],
-    "2026-04-26": [
-      "cramps"
-    ]
+    "2026-03-15":["spicy"],
+    "2026-03-16":["cramps","breast","headache"],
+    "2026-03-17":["cramps","backache","mood"],
+    "2026-04-12":["headache"],
+    "2026-04-21":["cramps"],
+    "2026-04-22":["cramps","backache"],
+    "2026-04-23":["cramps"],
+    "2026-04-26":["cramps"]
   },
   "meds": [
-    {
-      "date": "2026-03-16",
-      "id": "excedrin",
-      "note": "偏头疼"
-    },
-    {
-      "date": "2026-03-17",
-      "id": "excedrin",
-      "note": "偏头疼/腰疼"
-    }
+    {"date":"2026-03-16","id":"excedrin","note":"偏头疼"},
+    {"date":"2026-03-17","id":"excedrin","note":"偏头疼/腰疼"}
   ],
-  "inventory": {
-    "pads": 5,
-    "warmpad": 0,
-    "painkillers": 2,
-    "tampons": 0
-  },
-  "avgCycle": 32,
+  "inventory": {"pads":5,"warmpad":0,"painkillers":2,"tampons":0},
+  "avgCycle": 38,
   "avgPeriod": 5,
-  "lastUpdated": "2026-04-28T12:45:00"
+  "lastUpdated": "2026-06-02T19:30:00"
 }
